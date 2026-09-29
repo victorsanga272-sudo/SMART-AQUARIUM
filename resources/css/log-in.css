@@ -523,9 +523,9 @@ body{
     }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 768px) {
     :root {
-        --mobile-banner-height: clamp(210px, 32dvh, 240px);
+        --mobile-banner-height: clamp(190px, 26dvh, 230px);
     }
 
     body {
@@ -533,9 +533,10 @@ body{
     }
 
     section.log-user {
-        width: 100%;
+        width: min(100%, 700px);
         height: auto;
         min-height: 100dvh;
+        margin-inline: auto;
     }
 
     .log-user > .log-in-div,
@@ -547,7 +548,7 @@ body{
     }
 
     .log-user > .log-in-div {
-        padding-top: 32px;
+        padding-top: clamp(32px, 6vh, 56px);
     }
 
     .log-user .log-in-div .log-in-form,
@@ -555,16 +556,7 @@ body{
         box-sizing: border-box;
         height: auto;
         min-height: 0;
-        padding: 0 16px;
-    }
-
-    .log-in-form h1 {
-        font-size: 26px;
-    }
-
-    .log-in-form .form-options {
-        flex-wrap: wrap;
-        gap: 8px;
+        padding-inline: clamp(16px, 4vw, 32px);
     }
 
     .log-user > .log-in,
@@ -574,9 +566,10 @@ body{
         right: 0;
         bottom: 0;
         left: 0;
+        margin-inline: auto;
         z-index: 10;
         box-sizing: border-box;
-        width: 100%;
+        width: min(100%, 700px);
         height: var(--mobile-banner-height);
         min-height: 0;
         padding: 20px 16px;
@@ -598,6 +591,33 @@ body{
     .register .register-button {
         flex: 0 0 50px;
     }
+}
 
+@media (max-width: 420px) {
+    :root {
+        --mobile-banner-height: clamp(210px, 32dvh, 240px);
+    }
+
+    section.log-user {
+        width: 100%;
+    }
+
+    .log-user > .log-in-div {
+        padding-top: 32px;
+    }
+
+    .log-user .log-in-div .log-in-form,
+    .log-user .sign-in-div .sign-up-form {
+        padding-inline: 16px;
+    }
+
+    .log-in-form h1 {
+        font-size: 26px;
+    }
+
+    .log-in-form .form-options {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
 }
       
