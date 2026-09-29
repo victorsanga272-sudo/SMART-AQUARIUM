@@ -1,7 +1,7 @@
 <?php
 
-test('the application returns a successful response', function () {
+test('the root URL redirects to the sign in page', function () {
     $response = $this->get('/');
 
-    $response->assertStatus(200);
+    $response->assertRedirect(route('vivo_users.create'));
 });

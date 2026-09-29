@@ -12,7 +12,7 @@ use App\Http\Controllers\VivoUsersController;
 use App\Http\Controllers\AquariumDashboardController;
 
 Route::get('/', function () {
-    return view('/login/create');
+    return redirect()->route('vivo_users.create');
 });
 
 Route::get('/login/create', [VivoUsersController::class, 'create'])->name('vivo_users.create');
