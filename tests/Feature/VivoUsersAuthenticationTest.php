@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\VivoUsers;
+use App\Mail\RegistrationSuccessful;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 it('rejects invalid registration data', function () {
     $response = $this->from('/login/create')->post('/login/store', [
@@ -22,6 +24,8 @@ it('rejects invalid registration data', function () {
 });
 
 it('registers a user with valid data', function () {
+    Mail::fake();
+
     $response = $this->from('/login/create')->post('/login/store', [
         'username' => 'Victor',
         'email' => 'victor@gmail.com',
@@ -35,9 +39,13 @@ it('registers a user with valid data', function () {
 
     expect(VivoUsers::where('email', 'victor@gmail.com')->exists())->toBeTrue();
     expect(VivoUsers::where('email', 'victor@gmail.com')->first()->aquarium->sain)->toMatch('/^\d{20}$/');
+
+    Mail::assertSent(RegistrationSuccessful::class, fn (RegistrationSuccessful $mail) => $mail->hasTo('victor@gmail.com'));
 });
 
 it('returns user json when registration explicitly requests json', function () {
+    Mail::fake();
+
     $response = $this->postJson('/login/store', [
         'username' => 'Victor',
         'email' => 'victor@gmail.com',
@@ -50,6 +58,8 @@ it('returns user json when registration explicitly requests json', function () {
         ->assertJsonPath('message', 'user created successfully...')
         ->assertJsonPath('user.email', 'victor@gmail.com')
         ->assertJsonStructure(['user' => ['aquarium' => ['sain']]]);
+
+    Mail::assertSent(RegistrationSuccessful::class, fn (RegistrationSuccessful $mail) => $mail->hasTo('victor@gmail.com'));
 });
 
 it('rejects incorrect login credentials', function () {

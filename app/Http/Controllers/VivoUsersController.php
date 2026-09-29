@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\VivoUsers;
+use App\Mail\RegistrationSuccessful;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class VivoUsersController extends Controller
 {
@@ -64,6 +66,8 @@ class VivoUsersController extends Controller
 
             return $user->load('aquarium');
         });
+
+        Mail::to($vivo_users->email)->send(new RegistrationSuccessful($vivo_users));
 
         if ($request->expectsJson()) {
             return response()->json([
