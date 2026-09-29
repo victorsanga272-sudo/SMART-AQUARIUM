@@ -63,6 +63,26 @@ it('returns user json when registration explicitly requests json', function () {
     Mail::assertSent(RegistrationSuccessful::class, fn (RegistrationSuccessful $mail) => $mail->hasTo('victor@gmail.com'));
 });
 
+it('completes registration when the welcome email cannot be sent', function () {
+    Mail::shouldReceive('to')
+        ->once()
+        ->with('victor@gmail.com')
+        ->andThrow(new RuntimeException('SMTP unavailable'));
+
+    $response = $this->postJson('/login/store', [
+        'username' => 'Victor',
+        'email' => 'victor@gmail.com',
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+        'terms' => 'on',
+    ]);
+
+    $response->assertCreated()
+        ->assertJsonPath('email_sent', false);
+
+    expect(VivoUsers::where('email', 'victor@gmail.com')->exists())->toBeTrue();
+});
+
 it('sends a debug email to the authenticated user', function () {
     Mail::fake();
     $user = VivoUsers::create([
