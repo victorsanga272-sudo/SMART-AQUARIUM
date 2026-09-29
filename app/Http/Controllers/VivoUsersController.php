@@ -15,12 +15,6 @@ class VivoUsersController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function home()
-    {
-        //
-      return view('home');
-    }
-
     public function index()
     {
         //

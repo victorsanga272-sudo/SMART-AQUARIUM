@@ -2,6 +2,7 @@
 
 use App\Models\VivoUsers;
 use App\Mail\RegistrationSuccessful;
+use App\Mail\DebugTestEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -60,6 +61,22 @@ it('returns user json when registration explicitly requests json', function () {
         ->assertJsonStructure(['user' => ['aquarium' => ['sain']]]);
 
     Mail::assertSent(RegistrationSuccessful::class, fn (RegistrationSuccessful $mail) => $mail->hasTo('victor@gmail.com'));
+});
+
+it('sends a debug email to the authenticated user', function () {
+    Mail::fake();
+    $user = VivoUsers::create([
+        'username' => 'Victor',
+        'email' => 'victor@example.com',
+        'password' => Hash::make('password123'),
+    ]);
+
+    $this->actingAs($user)
+        ->get('/debug/mail')
+        ->assertOk()
+        ->assertJson(['message' => 'Test email sent.']);
+
+    Mail::assertSent(DebugTestEmail::class, fn (DebugTestEmail $mail) => $mail->hasTo('victor@example.com'));
 });
 
 it('rejects incorrect login credentials', function () {

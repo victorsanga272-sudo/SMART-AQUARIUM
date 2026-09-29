@@ -57,6 +57,67 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
+## Email delivery setup
+
+The application sends a welcome email when a new user registers. The mailer is configured for SMTP instead of Laravel's default log transport so registration emails can actually be delivered.
+
+For local development on Windows, install Mailpit and run it in a terminal:
+
+```bash
+winget install --id axllent.mailpit
+mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025
+```
+
+Then set these values in your `.env`:
+
+```env
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=127.0.0.1
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="noreply@localhost"
+MAIL_FROM_NAME="ViVo"
+```
+
+Open http://127.0.0.1:8025 to inspect outgoing messages in Mailpit. While signed in locally, visit `/debug/mail` to send a test message to your own account. This authenticated route is registered only in local and testing environments; it is not available in production.
+
+For Gmail, use a Google App Password (not your account password) and enable 2-Step Verification:
+
+```env
+MAIL_MAILER=smtp
+MAIL_SCHEME=tls
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME="your-address@gmail.com"
+MAIL_PASSWORD="your-16-character-app-password"
+MAIL_FROM_ADDRESS="your-address@gmail.com"
+MAIL_FROM_NAME="ViVo"
+```
+
+For SendGrid, create an API key with mail-sending permissions and verify the sender identity:
+
+```env
+MAIL_MAILER=smtp
+MAIL_SCHEME=tls
+MAIL_HOST=smtp.sendgrid.net
+MAIL_PORT=587
+MAIL_USERNAME="apikey"
+MAIL_PASSWORD="your-sendgrid-api-key"
+MAIL_FROM_ADDRESS="your-verified-sender@example.com"
+MAIL_FROM_NAME="ViVo"
+```
+
+Keep provider credentials in `.env` or your deployment's secret manager. Never commit real credentials. After changing mail settings, clear cached config and run the tests:
+
+After updating the environment, clear the config cache:
+
+```bash
+php artisan config:clear
+php artisan test
+```
+
 ## Aquarium Device API
 
 Each account owns one aquarium. Each aquarium has a unique 20-digit **SAIN** (Smart Aquarium Identification Number). Existing aquariums receive a SAIN through the SAIN migration; new aquariums receive one at account registration. SAIN is an identifier, not a secret. Run `php artisan migrate` after updating to create and backfill aquarium data.
