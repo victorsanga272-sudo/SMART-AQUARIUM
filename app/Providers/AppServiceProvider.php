@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,5 +32,8 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('registration', function (Request $request) {
             return Limit::perMinute(3)->by($request->ip());
         });
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
     }
 }
