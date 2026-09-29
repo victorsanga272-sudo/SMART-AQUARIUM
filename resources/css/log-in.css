@@ -522,4 +522,48 @@ body{
         min-height: 30vh;
     }
 }
+
+@media (max-width: 420px) {
+    body {
+        min-height: 100dvh;
+    }
+
+    section.log-user {
+        width: 100%;
+        height: auto;
+        min-height: 100dvh;
+    }
+
+    .log-in-div {
+        box-sizing: border-box;
+        padding: 32px 0 20px;
+    }
+
+    .log-in-form {
+        box-sizing: border-box;
+        padding: 0 16px;
+    }
+
+    .log-in-form h1 {
+        font-size: 26px;
+    }
+
+    .log-in-form .form-options {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .log-user > .register {
+        box-sizing: border-box;
+        height: auto;
+        min-height: 180px;
+        padding: 24px 16px;
+    }
+
+    .register .text p {
+        font-size: 15px;
+        line-height: 22px;
+        padding: 0 8px;
+    }
+}
       

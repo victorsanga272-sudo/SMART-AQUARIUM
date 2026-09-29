@@ -9,7 +9,6 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/css/log-in.css',
-                'resources/js/app.js',
                 'resources/js/form-animate.js',
                 'resources/js/auth-validation.js',
             ],
