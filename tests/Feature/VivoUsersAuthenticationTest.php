@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
+it('uses a bounded smtp connection timeout', function () {
+    expect(config('mail.mailers.smtp.timeout'))->toBe(5);
+});
+
 it('rejects invalid registration data', function () {
     $response = $this->from('/login/create')->post('/login/store', [
         'username' => '',
