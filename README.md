@@ -87,7 +87,7 @@ For Gmail, use a Google App Password (not your account password) and enable 2-St
 
 ```env
 MAIL_MAILER=smtp
-MAIL_SCHEME=tls
+MAIL_SCHEME=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME="your-address@gmail.com"
@@ -100,7 +100,7 @@ For SendGrid, create an API key with mail-sending permissions and verify the sen
 
 ```env
 MAIL_MAILER=smtp
-MAIL_SCHEME=tls
+MAIL_SCHEME=smtp
 MAIL_HOST=smtp.sendgrid.net
 MAIL_PORT=587
 MAIL_USERNAME="apikey"
