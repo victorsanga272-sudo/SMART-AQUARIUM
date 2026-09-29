@@ -1,0 +1,8 @@
+[providers]
+providers = ["php", "node"]
+
+[sysPackages]
+aptPkgs = ["php-intl"]
+
+[php]
+extensions = ["intl", "pdo_mysql", "mbstrings", "openssl"]
