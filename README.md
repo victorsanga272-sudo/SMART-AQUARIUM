@@ -96,6 +96,17 @@ MAIL_FROM_ADDRESS="your-address@gmail.com"
 MAIL_FROM_NAME="ViVo"
 ```
 
+Railway's runtime log showed that its service could not connect to Gmail's SMTP socket. For Railway, use Resend's HTTPS API instead of SMTP. Verify a sending domain in Resend, create an API key, then set these Railway variables:
+
+```env
+MAIL_MAILER=resend
+RESEND_API_KEY=re_your_resend_api_key
+MAIL_FROM_ADDRESS="SACP <noreply@your-verified-domain.com>"
+MAIL_FROM_NAME="VictorTechnology"
+```
+
+Do not set `MAIL_HOST`, `MAIL_PORT`, or `MAIL_SCHEME` when using the Resend API transport. Keep the API key in Railway's secret variables, never in source control.
+
 For SendGrid, create an API key with mail-sending permissions and verify the sender identity:
 
 ```env

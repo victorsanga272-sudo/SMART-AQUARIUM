@@ -6,9 +6,19 @@ use App\Mail\DebugTestEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\MailManager;
+use Illuminate\Mail\Transport\ResendTransport;
 
 it('uses a bounded smtp connection timeout', function () {
     expect(config('mail.mailers.smtp.timeout'))->toBe(5);
+});
+
+it('can construct the Resend API mail transport', function () {
+    config(['services.resend.key' => 're_test_key']);
+
+    $transport = app(MailManager::class)->createSymfonyTransport(config('mail.mailers.resend'));
+
+    expect($transport)->toBeInstanceOf(ResendTransport::class);
 });
 
 it('rejects invalid registration data', function () {
