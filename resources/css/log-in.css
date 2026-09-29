@@ -524,6 +524,10 @@ body{
 }
 
 @media (max-width: 420px) {
+    :root {
+        --mobile-banner-height: clamp(210px, 32dvh, 240px);
+    }
+
     body {
         min-height: 100dvh;
     }
@@ -534,13 +538,23 @@ body{
         min-height: 100dvh;
     }
 
-    .log-in-div {
+    .log-user > .log-in-div,
+    .log-user > .sign-in-div {
         box-sizing: border-box;
-        padding: 32px 0 20px;
+        height: auto;
+        min-height: 0;
+        padding-bottom: calc(var(--mobile-banner-height) + 20px);
     }
 
-    .log-in-form {
+    .log-user > .log-in-div {
+        padding-top: 32px;
+    }
+
+    .log-user .log-in-div .log-in-form,
+    .log-user .sign-in-div .sign-up-form {
         box-sizing: border-box;
+        height: auto;
+        min-height: 0;
         padding: 0 16px;
     }
 
@@ -553,17 +567,37 @@ body{
         gap: 8px;
     }
 
+    .log-user > .log-in,
     .log-user > .register {
+        position: fixed;
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
         box-sizing: border-box;
-        height: auto;
-        min-height: 180px;
-        padding: 24px 16px;
+        width: 100%;
+        height: var(--mobile-banner-height);
+        min-height: 0;
+        padding: 20px 16px;
     }
 
+    .log-user > .log-in,
+    .log-user > .register {
+        transform-origin: center;
+    }
+
+    .log-in .text p,
     .register .text p {
         font-size: 15px;
         line-height: 22px;
         padding: 0 8px;
     }
+
+    .log-in .login-button,
+    .register .register-button {
+        flex: 0 0 50px;
+    }
+
 }
       
