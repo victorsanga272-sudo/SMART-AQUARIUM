@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\VivoUsers;
-use App\Mail\RegistrationSuccessful;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class VivoUsersController extends Controller
 {
@@ -61,27 +59,15 @@ class VivoUsersController extends Controller
             return $user->load('aquarium');
         });
 
-        $emailSent = true;
-
-        try {
-            Mail::to($vivo_users->email)->send(new RegistrationSuccessful($vivo_users));
-        } catch (\Throwable $exception) {
-            $emailSent = false;
-            report($exception);
-        }
-
         if ($request->expectsJson()) {
             return response()->json([
                 'message'=> 'user created successfully...',
                 'user'=> $vivo_users,
-                'email_sent' => $emailSent,
             ], 201);
         }
 
         return redirect()->route('vivo_users.create')
-            ->with('status', $emailSent
-                ? 'Account created successfully. Please log in.'
-                : 'Account created, but the welcome email could not be sent. Please log in.');
+            ->with('status', 'Account created successfully. Please log in.');
     }
 
     public function login(Request $request)

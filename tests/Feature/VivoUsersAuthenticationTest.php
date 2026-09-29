@@ -1,25 +1,8 @@
 <?php
 
 use App\Models\VivoUsers;
-use App\Mail\RegistrationSuccessful;
-use App\Mail\DebugTestEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Mail\MailManager;
-use Illuminate\Mail\Transport\ResendTransport;
-
-it('uses a bounded smtp connection timeout', function () {
-    expect(config('mail.mailers.smtp.timeout'))->toBe(5);
-});
-
-it('can construct the Resend API mail transport', function () {
-    config(['services.resend.key' => 're_test_key']);
-
-    $transport = app(MailManager::class)->createSymfonyTransport(config('mail.mailers.resend'));
-
-    expect($transport)->toBeInstanceOf(ResendTransport::class);
-});
 
 it('rejects invalid registration data', function () {
     $response = $this->from('/login/create')->post('/login/store', [
@@ -39,8 +22,6 @@ it('rejects invalid registration data', function () {
 });
 
 it('registers a user with valid data', function () {
-    Mail::fake();
-
     $response = $this->from('/login/create')->post('/login/store', [
         'username' => 'Victor',
         'email' => 'victor@gmail.com',
@@ -54,13 +35,9 @@ it('registers a user with valid data', function () {
 
     expect(VivoUsers::where('email', 'victor@gmail.com')->exists())->toBeTrue();
     expect(VivoUsers::where('email', 'victor@gmail.com')->first()->aquarium->sain)->toMatch('/^\d{20}$/');
-
-    Mail::assertSent(RegistrationSuccessful::class, fn (RegistrationSuccessful $mail) => $mail->hasTo('victor@gmail.com'));
 });
 
 it('returns user json when registration explicitly requests json', function () {
-    Mail::fake();
-
     $response = $this->postJson('/login/store', [
         'username' => 'Victor',
         'email' => 'victor@gmail.com',
@@ -73,44 +50,6 @@ it('returns user json when registration explicitly requests json', function () {
         ->assertJsonPath('message', 'user created successfully...')
         ->assertJsonPath('user.email', 'victor@gmail.com')
         ->assertJsonStructure(['user' => ['aquarium' => ['sain']]]);
-
-    Mail::assertSent(RegistrationSuccessful::class, fn (RegistrationSuccessful $mail) => $mail->hasTo('victor@gmail.com'));
-});
-
-it('completes registration when the welcome email cannot be sent', function () {
-    Mail::shouldReceive('to')
-        ->once()
-        ->with('victor@gmail.com')
-        ->andThrow(new RuntimeException('SMTP unavailable'));
-
-    $response = $this->postJson('/login/store', [
-        'username' => 'Victor',
-        'email' => 'victor@gmail.com',
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
-        'terms' => 'on',
-    ]);
-
-    $response->assertCreated()
-        ->assertJsonPath('email_sent', false);
-
-    expect(VivoUsers::where('email', 'victor@gmail.com')->exists())->toBeTrue();
-});
-
-it('sends a debug email to the authenticated user', function () {
-    Mail::fake();
-    $user = VivoUsers::create([
-        'username' => 'Victor',
-        'email' => 'victor@example.com',
-        'password' => Hash::make('password123'),
-    ]);
-
-    $this->actingAs($user)
-        ->get('/debug/mail')
-        ->assertOk()
-        ->assertJson(['message' => 'Test email sent.']);
-
-    Mail::assertSent(DebugTestEmail::class, fn (DebugTestEmail $mail) => $mail->hasTo('victor@example.com'));
 });
 
 it('rejects incorrect login credentials', function () {

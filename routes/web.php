@@ -3,8 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VivoUsersController;
 use App\Http\Controllers\AquariumDashboardController;
-use App\Mail\DebugTestEmail;
-use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
     return redirect()->route('vivo_users.create');
@@ -33,13 +31,3 @@ Route::middleware('auth')->prefix('api')->group(function () {
 });
 
 Route::view('/dashboard', 'dashboard')->middleware('auth')->name('dashboard');
-
-if (app()->environment(['local', 'testing'])) {
-    Route::get('/debug/mail', function () {
-        $user = request()->user();
-
-        Mail::to($user->email)->send(new DebugTestEmail($user));
-
-        return response()->json(['message' => 'Test email sent.']);
-    })->middleware('auth')->name('debug.mail');
-}
