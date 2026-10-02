@@ -15,6 +15,11 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'admin_emails' => array_values(array_filter(array_map(
+        fn (string $email): string => strtolower(trim($email)),
+        explode(',', (string) env('SACP_ADMIN_EMAILS', '')),
+    ))),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

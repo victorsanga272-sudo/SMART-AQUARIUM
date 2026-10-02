@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\VivoUsersController;
 use App\Http\Controllers\AquariumDashboardController;
+use App\Http\Middleware\EnsureUserIsAdmin;
 
 Route::get('/', function () {
     return redirect()->route('vivo_users.create');
@@ -31,3 +33,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
 });
 
 Route::view('/dashboard', 'dashboard')->middleware('auth')->name('dashboard');
+
+Route::get('/admin', [AdminDashboardController::class, 'index'])
+    ->middleware(['auth', EnsureUserIsAdmin::class])
+    ->name('admin.dashboard');
