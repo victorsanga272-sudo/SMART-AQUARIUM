@@ -17,6 +17,21 @@ Require all granted\n\
 </Directory>' > /etc/apache2/conf-available/laravel.conf \
 && a2enconf laravel
 
+RUN apt-get update && apt-get install -y \
+    git \
+    zip \
+    unzip \
+    libzip-dev \
+    libicu-dev \
+    libsqlite3-dev
+
+    RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    pdo_sqlite \
+    zip \
+    intl
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
