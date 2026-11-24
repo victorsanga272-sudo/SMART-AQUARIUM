@@ -32,6 +32,18 @@ Require all granted\n\
 </Directory>' > /etc/apache2/conf-available/laravel.conf \
 && a2enconf laravel
 
+# Install Node.js
+RUN apt-get update && apt-get install -y curl
+
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+RUN apt-get install -y nodejs
+
+COPY . .
+
+# Build Vite assets
+RUN npm install
+RUN npm run build
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
