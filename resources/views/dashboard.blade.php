@@ -12,9 +12,19 @@
     <script>
         document.documentElement.dataset.theme = localStorage.getItem('dashboard_theme') === 'light' ? 'light' : 'dark';
     </script>
+     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <style>
+        body {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.68), rgba(15, 23, 42, 0.68)), var(--dashboard-background-image);
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
         html[data-theme="light"] body {
-            background: #f1f5f9;
+            background-color: #f1f5f9;
+            background-image: linear-gradient(rgba(241, 245, 249, 0.78), rgba(241, 245, 249, 0.78)), var(--dashboard-background-image);
             color: #0f172a;
         }
 
@@ -100,9 +110,15 @@
             background: #334155;
             color: #ffffff;
         }
+
+        @media (max-width: 640px) {
+            body {
+                background-attachment: scroll;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body style="--dashboard-background-image: url('{{ asset('images/2.jpg') }}')" class="bg-slate-900 text-slate-100 min-h-screen">
 
     <!-- Header -->
     <header class="dashboard-header bg-slate-800 border-b border-slate-700">
@@ -133,7 +149,7 @@
                 </div>
 
                 <div class="flex shrink-0 items-center gap-2">
-                    <details class="relative">
+                    <details class="relative" @if ($errors->has('password')) open @endif>
                         <summary aria-label="Settings" title="Settings" class="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-lg bg-slate-700 text-slate-200 transition-colors hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400">
                             <i aria-hidden="true" class="fa-solid fa-gear text-lg"></i>
                         </summary>
@@ -156,6 +172,20 @@
                                 @csrf
                                 <button type="submit" class="w-full text-left text-xs font-medium text-rose-400 hover:text-rose-300">Log out all devices</button>
                             </form>
+                            <section class="mt-4 border-t border-slate-700 pt-3">
+                                <p class="text-sm font-medium text-rose-300">Delete account</p>
+                                <p class="mt-1 text-xs text-slate-400">This permanently deletes your account and its aquarium data.</p>
+                                <form method="POST" action="{{ route('vivo_users.destroy') }}" class="mt-3" onsubmit="return confirm('Permanently delete your account and all aquarium data? This cannot be undone.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <label for="delete-account-password" class="block text-xs text-slate-400">Confirm your current password</label>
+                                    <input id="delete-account-password" name="password" type="password" required autocomplete="current-password" class="mt-1 w-full rounded border border-slate-600 bg-slate-900 px-2 py-2 text-xs text-white">
+                                    @error('password')
+                                        <p class="mt-2 text-xs text-rose-400" role="alert">{{ $message }}</p>
+                                    @enderror
+                                    <button type="submit" class="mt-3 w-full rounded bg-rose-700 px-3 py-2 text-left text-xs font-semibold text-white hover:bg-rose-600">Delete my account</button>
+                                </form>
+                            </section>
                         </div>
                     </details>
                     <button onclick="logout()" class="dashboard-logout rounded-lg bg-rose-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400">Log Out</button>

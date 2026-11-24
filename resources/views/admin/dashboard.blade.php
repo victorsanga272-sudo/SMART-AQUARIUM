@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SACP Admin | System overview</title>
+     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -38,7 +39,12 @@
         .admin-label { color: var(--muted); font-size: 12px; }
         .admin-email { color: var(--ink); font-weight: 600; }
         .link-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); padding: 9px 12px; font-size: 12px; font-weight: 600; transition: border-color .15s, background .15s; }
+        .logout-button { color: var(--ink); cursor: pointer; }
         .link-button:hover { border-color: #b8c8be; background: #f8fbf9; }
+        .status-message { margin-bottom: 18px; padding: 12px 14px; border: 1px solid #b8ddc8; border-radius: 5px; background: #edf8f1; color: #176b50; }
+        .delete-user-form { margin: 0; }
+        .delete-user-button { border: 1px solid #f0caca; border-radius: 5px; background: #fff; padding: 7px 9px; color: #a12525; cursor: pointer; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .delete-user-button:hover { border-color: #d98b8b; background: #fff5f5; }
         main { width: min(1440px, 90vw); margin: 0 auto; padding: 36px 0 56px; }
         .heading-row { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 25px; }
         .eyebrow { margin: 0 0 7px; color: var(--forest); font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
@@ -92,7 +98,7 @@
         .footer-note { display: flex; align-items: center; gap: 7px; margin: 16px 0 0; color: var(--muted); font-size: 11px; }
         .footer-note i { color: var(--forest); }
         @media (max-width: 1080px) { .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .content-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 640px) { .topbar { height: auto; min-height: 62px; padding: 12px 5vw; } .brand-section, .brand-divider, .admin-label { display: none; } .admin-email { max-width: 38vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; } .top-actions { gap: 8px; } .link-button { padding: 8px 9px; } main { width: 92vw; padding-top: 25px; } .heading-row { align-items: start; flex-direction: column; } .updated { white-space: normal; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .stat { padding: 13px; } .stat-value { font-size: 23px; } .panel-head { padding: 14px; flex-wrap: wrap; } .search { width: 100%; } th, td { padding: 11px 12px; } .pagination { align-items: start; flex-direction: column; gap: 10px; } }
+        @media (max-width: 640px) { .topbar { height: auto; min-height: 62px; padding: 12px 5vw; } .brand-section, .brand-divider, .admin-label { display: none; } .admin-email { max-width: 38vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; } .top-actions { gap: 6px; } .link-button { padding: 8px 7px; font-size: 11px; } main { width: 92vw; padding-top: 25px; } .heading-row { align-items: start; flex-direction: column; } .updated { white-space: normal; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .stat { padding: 13px; } .stat-value { font-size: 23px; } .panel-head { padding: 14px; flex-wrap: wrap; } .search { width: 100%; } th, td { padding: 11px 12px; } .pagination { align-items: start; flex-direction: column; gap: 10px; } }
     </style>
 </head>
 <body>
@@ -106,10 +112,18 @@
         <div class="top-actions">
             <span class="admin-label">Signed in as <span class="admin-email">{{ auth()->user()->email }}</span></span>
             <a class="link-button" href="{{ route('dashboard') }}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Aquarium view</a>
+            <form method="POST" action="{{ route('vivo_users.logout') }}">
+                @csrf
+                <button class="link-button logout-button" type="submit"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out</button>
+            </form>
         </div>
     </header>
 
     <main>
+        @if (session('status'))
+            <p class="status-message" role="status">{{ session('status') }}</p>
+        @endif
+
         <section class="heading-row" aria-labelledby="page-title">
             <div>
                 <p class="eyebrow">SACP / Operations</p>
@@ -138,7 +152,7 @@
                 </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Account</th><th>SAIN</th><th>Device</th><th>Latest reading</th><th>Joined</th></tr></thead>
+                        <thead><tr><th>Account</th><th>SAIN</th><th>Device</th><th>Latest reading</th><th>Joined</th><th>Actions</th></tr></thead>
                         <tbody>
                             @forelse ($users as $user)
                                 @php($aquarium = $user->aquarium)
@@ -149,9 +163,20 @@
                                     <td><span class="state {{ $aquarium?->device_token_hash ? 'state-online' : 'state-offline' }}">{{ $aquarium?->device_token_hash ? 'Paired' : 'Unpaired' }}</span></td>
                                     <td class="reading">@if ($reading)<span>{{ number_format($reading->temperature, 1) }}°C</span> &middot; {{ number_format($reading->ph, 2) }} pH<br><span>{{ number_format($reading->turbidity, 1) }} NTU</span>@else<span>No readings</span>@endif</td>
                                     <td class="mono">{{ $user->created_at?->format('M j, Y') ?? '—' }}</td>
+                                    <td>
+                                        @if (auth()->id() !== $user->id)
+                                            <form class="delete-user-form" method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Permanently delete this account and all associated aquarium data? This cannot be undone.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="delete-user-button" type="submit" aria-label="Delete {{ $user->username }} account"><i class="fa-solid fa-trash" aria-hidden="true"></i> Delete</button>
+                                            </form>
+                                        @else
+                                            <span class="count">Current admin</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="5" class="empty">{{ $search ? 'No accounts match that search.' : 'No accounts have been created yet.' }}</td></tr>
+                                <tr><td colspan="6" class="empty">{{ $search ? 'No accounts match that search.' : 'No accounts have been created yet.' }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -183,5 +208,13 @@
         </div>
         <p class="footer-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Admin access is restricted to configured allowlisted accounts.</p>
     </main>
+    <script>
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                document.documentElement.style.visibility = 'hidden';
+                window.location.reload();
+            }
+        });
+    </script>
 </body>
 </html>

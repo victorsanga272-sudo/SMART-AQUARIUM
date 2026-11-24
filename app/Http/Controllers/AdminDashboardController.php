@@ -36,21 +36,25 @@ class AdminDashboardController extends Controller
             ->get()
             ->keyBy('aquarium_id');
 
-        return view('admin.dashboard', [
-            'users' => $users,
-            'latestTelemetry' => $latestTelemetry,
-            'search' => $search,
-            'stats' => [
-                'users' => VivoUsers::count(),
-                'aquariums' => Aquarium::count(),
-                'paired' => Aquarium::whereNotNull('device_token_hash')->count(),
-                'pendingCommands' => AquariumActuatorCommand::where('status', 'pending')->count(),
-                'telemetry' => AquariumTelemetry::count(),
-            ],
-            'recentCommands' => AquariumActuatorCommand::with('aquarium.owner')
-                ->latest()
-                ->limit(8)
-                ->get(),
-        ]);
+        return response()
+            ->view('admin.dashboard', [
+                'users' => $users,
+                'latestTelemetry' => $latestTelemetry,
+                'search' => $search,
+                'stats' => [
+                    'users' => VivoUsers::count(),
+                    'aquariums' => Aquarium::count(),
+                    'paired' => Aquarium::whereNotNull('device_token_hash')->count(),
+                    'pendingCommands' => AquariumActuatorCommand::where('status', 'pending')->count(),
+                    'telemetry' => AquariumTelemetry::count(),
+                ],
+                'recentCommands' => AquariumActuatorCommand::with('aquarium.owner')
+                    ->latest()
+                    ->limit(8)
+                    ->get(),
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }

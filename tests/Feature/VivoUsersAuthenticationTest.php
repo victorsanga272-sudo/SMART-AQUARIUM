@@ -78,6 +78,59 @@ it('returns incorrect login credentials as json when requested', function () {
         ->assertJsonValidationErrors(['identifier']);
 });
 
+it('requires the current password to delete an account', function () {
+    $user = VivoUsers::create([
+        'username' => 'Victor',
+        'email' => 'victor@gmail.com',
+        'password' => Hash::make('password123'),
+    ]);
+
+    $this->from(route('dashboard'))
+        ->actingAs($user)
+        ->delete(route('vivo_users.destroy'), ['password' => 'incorrect-password'])
+        ->assertRedirect(route('dashboard'))
+        ->assertSessionHasErrors('password');
+
+    $this->assertDatabaseHas('vivo_users', ['id' => $user->id]);
+});
+
+it('allows users to delete their account and cascades aquarium data', function () {
+    $user = VivoUsers::create([
+        'username' => 'Victor',
+        'email' => 'victor@gmail.com',
+        'password' => Hash::make('password123'),
+    ]);
+    $aquarium = $user->aquarium;
+    $telemetry = $aquarium->telemetry()->create([
+        'temperature' => 24.5,
+        'ph' => 7.2,
+        'turbidity' => 1.1,
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('vivo_users.destroy'), ['password' => 'password123'])
+        ->assertRedirect(route('vivo_users.create'))
+        ->assertSessionHas('status');
+
+    $this->assertGuest();
+    $this->assertDatabaseMissing('vivo_users', ['id' => $user->id]);
+    $this->assertDatabaseMissing('aquariums', ['id' => $aquarium->id]);
+    $this->assertDatabaseMissing('aquarium_telemetry', ['id' => $telemetry->id]);
+});
+
+it('renders the dashboard with the shared login background image', function () {
+    $user = VivoUsers::create([
+        'username' => 'Victor',
+        'email' => 'victor@gmail.com',
+        'password' => Hash::make('password123'),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee(asset('images/2.jpg'));
+});
+
 it('logs in with valid credentials', function () {
     VivoUsers::create([
         'username' => 'Victor',

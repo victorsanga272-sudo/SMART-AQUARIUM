@@ -117,6 +117,54 @@ class VivoUsersController extends Controller
         return redirect()->route('vivo_users.create');
     }
 
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('vivo_users.create');
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $this->deleteUserAccount($request->user());
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('vivo_users.create')
+            ->with('status', 'Your account and aquarium data have been permanently deleted.');
+    }
+
+    public function destroyByAdmin(Request $request, VivoUsers $user)
+    {
+        abort_if($request->user()->is($user), 403, 'Use the account deletion form to delete your own account.');
+
+        $this->deleteUserAccount($user);
+
+        return back()->with('status', 'The user account and associated aquarium data have been permanently deleted.');
+    }
+
+    private function deleteUserAccount(VivoUsers $user): void
+    {
+        DB::transaction(function () use ($user): void {
+            if (config('session.driver') === 'database') {
+                DB::connection(config('session.connection'))
+                    ->table(config('session.table'))
+                    ->where('user_id', $user->getKey())
+                    ->delete();
+            }
+
+            $user->delete();
+        });
+    }
+
     /**
      * Display the specified resource.
      */
@@ -141,11 +189,4 @@ class VivoUsersController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(VivoUsers $vivoUsers)
-    {
-        //
-    }
 }

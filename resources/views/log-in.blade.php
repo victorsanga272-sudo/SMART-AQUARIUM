@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log In</title>
+     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 @vite(['resources/css/log-in.css', 'resources/js/form-animate.js', 'resources/js/auth-validation.js','resources/css/app.css'])
 </head>
-<body>
+<body style="--login-background-image: url('{{ asset('images/2.jpg') }}')">
     @php
         $rememberedEmail = request()->cookie('remember_email');
         $isHidden=true;
     @endphp
-    <section class="log-user h-[100vh] w-[100%] md:w-[90%] lg:w-[70%] lg:h-[90%] grid grid-cols-1 md:grid-cols-2 relative">
+    <section class="log-user grid grid-cols-1 md:grid-cols-2 relative">
     <div class="log-in-div rounded-none md:rounded-l-lg lg:rounded-l-[3%]">
     <form action="{{ route('vivo_users.login') }}" method="POST" class="log-in-form" novalidate>
     <h1>Log In</h1>
