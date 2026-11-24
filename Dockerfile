@@ -7,15 +7,14 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libicu-dev
 
-RUN docker-php-ext-install \
-    pdo \
-    pdo_mysql \
-    zip \
-    intl
+RUN docker-php-ext-install pdo pdo_mysql zip intl
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
+
+RUN sed -i 's!/var/www/html!/var/www/html/public!g' \
+    /etc/apache2/sites-available/000-default.conf
 
 COPY . .
 
