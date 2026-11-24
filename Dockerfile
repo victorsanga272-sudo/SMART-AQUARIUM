@@ -58,6 +58,11 @@ RUN mkdir -p database && touch database/database.sqlite
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+RUN chmod 777 database/database.sqlite
+
+RUN chmod -R 777 database
+
+RUN touch database/database.sqlite
 
 RUN php artisan migrate --force
 
