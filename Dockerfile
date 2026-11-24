@@ -58,6 +58,9 @@ RUN mkdir -p database && touch database/database.sqlite
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+
+RUN php artisan migrate --force
+
 # Set permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
