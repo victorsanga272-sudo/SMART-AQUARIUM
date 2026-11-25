@@ -7,7 +7,6 @@ RUN npm ci
 
 COPY resources/ resources/
 COPY vite.config.* ./
-# Include public/ if your Vite config references local files during build
 COPY public/ public/
 RUN npm run build
 
@@ -15,7 +14,7 @@ RUN npm run build
 # Stage 2: PHP + Apache runtime
 FROM php:8.3-apache
 
-# Install system dependencies and PHP extensions commonly used by Laravel
+# Install system dependencies and PHP extensions once
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
@@ -42,24 +41,19 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 # Install Composer from official image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
-
-# Copy composer files first for layer caching
+# Install PHP dependencies
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-RUN docker-php-ext-install -j$(nproc) pdo_mysql intl mbstring bcmath zip opcache
-
-# Copy application source
+WORKDIR /var/www/html
+# Copy application source and built Vite assets
 COPY . .
-
-# Copy built Vite assets from Stage 1
 COPY --from=frontend /app/public/build ./public/build
 
-# Run Laravel post-install scripts now that full app is present
+# Finalize optimized autoloader
 RUN composer dump-autoload --optimize
 
-# Ensure writable permissions for Laravel storage and cache
+# Set writable permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
