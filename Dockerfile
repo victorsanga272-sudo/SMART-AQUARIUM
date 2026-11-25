@@ -13,10 +13,13 @@ RUN npm run build
 # Stage 2: PHP 8.4 + Apache runtime
 FROM php:8.4-apache
 
-# Install system dependencies and PHP extensions (including pdo_pgsql for Render PostgreSQL)
+# Install system dependencies and PHP extensions (including libonig-dev for mbstring and pdo_pgsql for Render PostgreSQL)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
+    pkg-config \
+    zlib1g-dev \
+    libonig-dev \
     libpq-dev \
     libicu-dev \
     libzip-dev \
