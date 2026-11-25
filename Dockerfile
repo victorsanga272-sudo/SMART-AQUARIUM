@@ -10,12 +10,14 @@ RUN apt-get update && apt-get install -y \
     libicu-dev
 
 # PHP extensions
+RUN apt-get update && apt-get install -y \
+    libpq-dev
+
 RUN docker-php-ext-install \
     pdo \
     pdo_pgsql \
     intl \
     zip
-
 # Enable Apache rewrite
 RUN a2enmod rewrite
 
@@ -53,7 +55,7 @@ RUN npm run build
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Run migrations
-RUN php artisan migrate --force || true
+RUN php artisan migrate --force 
 
 EXPOSE 80
 
